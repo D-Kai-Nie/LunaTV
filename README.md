@@ -86,17 +86,11 @@
 2. 复制新数据库的 **HTTPS ENDPOINT 和 TOKEN**
 3. 返回你的 Vercel 项目，新增环境变量
 4. 要添加以下环境变量
- 
-   USERNAME=admin 站长账号（可随意更改）
-   
-   PASSWORD=admin 站长密码（可随意更改）
-   
-   NEXT_PUBLIC_STORAGE_TYPE=upstash
-   
-   UPSTASH_URL=复制 endpoint 的 HTTPS
-   
-   UPSTASH_TOKEN=复制token
-   
+   USERNAME=admin 站长账号（可随意更改）  
+   PASSWORD=admin 站长密码（可随意更改）  
+   NEXT_PUBLIC_STORAGE_TYPE=upstash  
+   UPSTASH_URL=复制 endpoint 的 HTTPS  
+   UPSTASH_TOKEN=复制token  
 6. 重试部署
 </details>
 
@@ -110,13 +104,11 @@
 5. CPU 设置0.2 Memory设置最少256。
 6. 点击Add port 端口3000，协议选https。
 7. 添加变量
-
-   USERNAME=admin
-   PASSWORD=admin
-   NEXT_PUBLIC_STORAGE_TYPE=upstash
-   UPSTASH_URL=Redis 实例的HTTPS
-   UPSTASH_TOKEN=Redis 实例的token
-   
+   USERNAME=admin  
+   PASSWORD=admin  
+   NEXT_PUBLIC_STORAGE_TYPE=upstash  
+   UPSTASH_URL=Redis 实例的HTTPS  
+   UPSTASH_TOKEN=Redis 实例的token     
 9. 点击Update完成部署
 </details>
 
