@@ -85,7 +85,7 @@
 1. 在 [upstash](https://upstash.com/) 注册账号并新建一个 Redis 实例，名称任意。
 2. 复制新数据库的 **HTTPS ENDPOINT 和 TOKEN**
 3. 返回你的 Vercel 项目，新增环境变量
-4. 要添加以下环境变量
+4. 要添加以下环境变量  
    USERNAME=admin 站长账号（可随意更改）  
    PASSWORD=admin 站长密码（可随意更改）  
    NEXT_PUBLIC_STORAGE_TYPE=upstash  
@@ -103,7 +103,7 @@
 4. Image Name填写 ghcr.io/moontechlab/lunatv:latest
 5. CPU 设置0.2 Memory设置最少256。
 6. 点击Add port 端口3000，协议选https。
-7. 添加变量
+7. 添加变量  
    USERNAME=admin  
    PASSWORD=admin  
    NEXT_PUBLIC_STORAGE_TYPE=upstash  
