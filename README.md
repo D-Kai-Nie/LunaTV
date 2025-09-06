@@ -103,16 +103,19 @@
 <details>
 <summary><code><strong>「 ### clawcloud 部署 」</strong></code></summary>
 
-1.Image Name填写ghcr.io/moontechlab/lunatv:latest
-2.CPU 设置0.2 Memory设置最少256
-3.点击Add port 端口3000，协议选https
-4.添加变量
-USERNAME=admin
-PASSWORD=admin
-NEXT_PUBLIC_STORAGE_TYPE=upstash
-UPSTASH_URL=Redis 实例的HTTPS
-UPSTASH_TOKEN=Redis 实例的token
-5.点击Update完成部署
+1. **Fork** 本仓库到你的 GitHub 账户。
+2. 登陆 [clawcloud](https://ap-northeast-1.run.claw.cloud)，选择Availability Zone日本、新加坡延时低但是晚高峰略卡。
+3. 点击App Launchpad 然后点击 create App，hello word处填写任意名称。
+4. Image Name填写 ghcr.io/moontechlab/lunatv:latest
+5. CPU 设置0.2 Memory设置最少256。
+6. 点击Add port 端口3000，协议选https。
+7. 添加变量
+   USERNAME=admin
+   PASSWORD=admin
+   NEXT_PUBLIC_STORAGE_TYPE=upstash
+   UPSTASH_URL=Redis 实例的HTTPS
+   UPSTASH_TOKEN=Redis 实例的token 
+8. 点击Update完成部署
 </details>
 
 <details>
