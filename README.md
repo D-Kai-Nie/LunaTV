@@ -101,6 +101,20 @@
 </details>
 
 <details>
+<summary><code><strong>「 ### clawcloud 部署 」</strong></code></summary>
+
+1.Image Name填写ghcr.io/moontechlab/lunatv:latest
+2.CPU 设置0.2 Memory设置最少256
+3.点击Add port 端口3000，协议选https
+4.添加变量
+USERNAME=admin
+PASSWORD=admin
+NEXT_PUBLIC_STORAGE_TYPE=upstash
+UPSTASH_URL=Redis 实例的HTTPS
+UPSTASH_TOKEN=Redis 实例的token
+5.点击Update完成部署
+
+<details>
 <summary><code><strong>「 ### Kvrocks 存储（推荐） 」</strong></code></summary>
 
 ```yml
