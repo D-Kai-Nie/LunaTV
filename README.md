@@ -110,12 +110,14 @@
 5. CPU 设置0.2 Memory设置最少256。
 6. 点击Add port 端口3000，协议选https。
 7. 添加变量
+
    USERNAME=admin
    PASSWORD=admin
    NEXT_PUBLIC_STORAGE_TYPE=upstash
    UPSTASH_URL=Redis 实例的HTTPS
-   UPSTASH_TOKEN=Redis 实例的token 
-8. 点击Update完成部署
+   UPSTASH_TOKEN=Redis 实例的token
+   
+9. 点击Update完成部署
 </details>
 
 <details>
