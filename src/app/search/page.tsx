@@ -3,7 +3,14 @@
 
 import { ChevronUp, Search, X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { startTransition, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  startTransition,
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import {
   addSearchHistory,
@@ -15,7 +22,9 @@ import {
 import { SearchResult } from '@/lib/types';
 
 import PageLayout from '@/components/PageLayout';
-import SearchResultFilter, { SearchFilterCategory } from '@/components/SearchResultFilter';
+import SearchResultFilter, {
+  SearchFilterCategory,
+} from '@/components/SearchResultFilter';
 import SearchSuggestions from '@/components/SearchSuggestions';
 import VideoCard, { VideoCardHandle } from '@/components/VideoCard';
 
@@ -40,8 +49,15 @@ function SearchPageClient() {
   const flushTimerRef = useRef<number | null>(null);
   const [useFluidSearch, setUseFluidSearch] = useState(true);
   // 聚合卡片 refs 与聚合统计缓存
-  const groupRefs = useRef<Map<string, React.RefObject<VideoCardHandle>>>(new Map());
-  const groupStatsRef = useRef<Map<string, { douban_id?: number; episodes?: number; source_names: string[] }>>(new Map());
+  const groupRefs = useRef<Map<string, React.RefObject<VideoCardHandle>>>(
+    new Map()
+  );
+  const groupStatsRef = useRef<
+    Map<
+      string,
+      { douban_id?: number; episodes?: number; source_names: string[] }
+    >
+  >(new Map());
 
   const getGroupRef = (key: string) => {
     let ref = groupRefs.current.get(key);
@@ -62,11 +78,16 @@ function SearchPageClient() {
       let max = 0;
       let res = 0;
       countMap.forEach((v, k) => {
-        if (v > max) { max = v; res = k; }
+        if (v > max) {
+          max = v;
+          res = k;
+        }
       });
       return res;
     })();
-    const source_names = Array.from(new Set(group.map((g) => g.source_name).filter(Boolean))) as string[];
+    const source_names = Array.from(
+      new Set(group.map((g) => g.source_name).filter(Boolean))
+    ) as string[];
 
     const douban_id = (() => {
       const countMap = new Map<number, number>();
@@ -78,7 +99,10 @@ function SearchPageClient() {
       let max = 0;
       let res: number | undefined;
       countMap.forEach((v, k) => {
-        if (v > max) { max = v; res = k; }
+        if (v > max) {
+          max = v;
+          res = k;
+        }
       });
       return res;
     })();
@@ -86,28 +110,41 @@ function SearchPageClient() {
     return { episodes, source_names, douban_id };
   };
   // 过滤器：非聚合与聚合
-  const [filterAll, setFilterAll] = useState<{ source: string; title: string; year: string; yearOrder: 'none' | 'asc' | 'desc' }>({
+  const [filterAll, setFilterAll] = useState<{
+    source: string;
+    title: string;
+    year: string;
+    yearOrder: 'none' | 'asc' | 'desc';
+  }>({
     source: 'all',
     title: 'all',
     year: 'all',
     yearOrder: 'none',
   });
-  const [filterAgg, setFilterAgg] = useState<{ source: string; title: string; year: string; yearOrder: 'none' | 'asc' | 'desc' }>({
+  const [filterAgg, setFilterAgg] = useState<{
+    source: string;
+    title: string;
+    year: string;
+    yearOrder: 'none' | 'asc' | 'desc';
+  }>({
     source: 'all',
     title: 'all',
     year: 'all',
     yearOrder: 'none',
   });
 
-  // 获取默认聚合设置：只读取用户本地设置，默认为 true
+  // 获取默认聚合设置：只读取用户本地设置，在移动端默认为 all，桌面端默认为 agg
   const getDefaultAggregate = () => {
     if (typeof window !== 'undefined') {
       const userSetting = localStorage.getItem('defaultAggregateSearch');
       if (userSetting !== null) {
         return JSON.parse(userSetting);
       }
+      // 检查是否为移动端
+      const isMobile = window.innerWidth < 768; // md breakpoint
+      return !isMobile; // 移动端默认 false (all)，桌面端默认 true (agg)
     }
-    return true; // 默认启用聚合
+    return true;
   };
 
   const [viewMode, setViewMode] = useState<'agg' | 'all'>(() => {
@@ -135,7 +172,11 @@ function SearchPageClient() {
   };
 
   // 简化的年份排序：unknown/空值始终在最后
-  const compareYear = (aYear: string, bYear: string, order: 'none' | 'asc' | 'desc') => {
+  const compareYear = (
+    aYear: string,
+    bYear: string,
+    order: 'none' | 'asc' | 'desc'
+  ) => {
     // 如果是无排序状态，返回0（保持原顺序）
     if (order === 'none') return 0;
 
@@ -161,8 +202,9 @@ function SearchPageClient() {
 
     searchResults.forEach((item) => {
       // 使用 title + year + type 作为键，year 必然存在，但依然兜底 'unknown'
-      const key = `${item.title.replaceAll(' ', '')}-${item.year || 'unknown'
-        }-${item.episodes.length === 1 ? 'movie' : 'tv'}`;
+      const key = `${item.title.replaceAll(' ', '')}-${
+        item.year || 'unknown'
+      }-${item.episodes.length === 1 ? 'movie' : 'tv'}`;
       const arr = map.get(key) || [];
 
       // 如果是新的键，记录其顺序
@@ -175,7 +217,9 @@ function SearchPageClient() {
     });
 
     // 按出现顺序返回聚合结果
-    return keyOrder.map(key => [key, map.get(key)!] as [string, SearchResult[]]);
+    return keyOrder.map(
+      (key) => [key, map.get(key)!] as [string, SearchResult[]]
+    );
   }, [searchResults]);
 
   // 当聚合结果变化时，如果某个聚合已存在，则调用其卡片 ref 的 set 方法增量更新
@@ -237,7 +281,9 @@ function SearchPageClient() {
 
     // 年份: 将 unknown 放末尾
     const years = Array.from(yearsSet.values());
-    const knownYears = years.filter((y) => y !== 'unknown').sort((a, b) => parseInt(b) - parseInt(a));
+    const knownYears = years
+      .filter((y) => y !== 'unknown')
+      .sort((a, b) => parseInt(b) - parseInt(a));
     const hasUnknown = years.includes('unknown');
     const yearOptions: { label: string; value: string }[] = [
       { label: '全部年份', value: 'all' },
@@ -288,9 +334,9 @@ function SearchPageClient() {
       if (!aExactMatch && bExactMatch) return 1;
 
       // 最后按标题排序，正序时字母序，倒序时反字母序
-      return yearOrder === 'asc' ?
-        a.title.localeCompare(b.title) :
-        b.title.localeCompare(a.title);
+      return yearOrder === 'asc'
+        ? a.title.localeCompare(b.title)
+        : b.title.localeCompare(a.title);
     });
   }, [searchResults, filterAll, searchQuery]);
 
@@ -300,7 +346,8 @@ function SearchPageClient() {
     const filtered = aggregatedResults.filter(([_, group]) => {
       const gTitle = group[0]?.title ?? '';
       const gYear = group[0]?.year ?? 'unknown';
-      const hasSource = source === 'all' ? true : group.some((item) => item.source === source);
+      const hasSource =
+        source === 'all' ? true : group.some((item) => item.source === source);
       if (!hasSource) return false;
       if (title !== 'all' && gTitle !== title) return false;
       if (year !== 'all' && gYear !== year) return false;
@@ -329,9 +376,9 @@ function SearchPageClient() {
       // 最后按标题排序，正序时字母序，倒序时反字母序
       const aTitle = a[1][0].title;
       const bTitle = b[1][0].title;
-      return yearOrder === 'asc' ?
-        aTitle.localeCompare(bTitle) :
-        bTitle.localeCompare(aTitle);
+      return yearOrder === 'asc'
+        ? aTitle.localeCompare(bTitle)
+        : bTitle.localeCompare(aTitle);
     });
   }, [aggregatedResults, filterAgg, searchQuery]);
 
@@ -409,7 +456,9 @@ function SearchPageClient() {
       setSearchQuery(query);
       // 新搜索：关闭旧连接并清空结果
       if (eventSourceRef.current) {
-        try { eventSourceRef.current.close(); } catch { }
+        try {
+          eventSourceRef.current.close();
+        } catch {}
         eventSourceRef.current = null;
       }
       setSearchResults([]);
@@ -433,7 +482,8 @@ function SearchPageClient() {
         if (savedFluidSearch !== null) {
           currentFluidSearch = JSON.parse(savedFluidSearch);
         } else {
-          const defaultFluidSearch = (window as any).RUNTIME_CONFIG?.FLUID_SEARCH !== false;
+          const defaultFluidSearch =
+            (window as any).RUNTIME_CONFIG?.FLUID_SEARCH !== false;
           currentFluidSearch = defaultFluidSearch;
         }
       }
@@ -445,7 +495,9 @@ function SearchPageClient() {
 
       if (currentFluidSearch) {
         // 流式搜索：打开新的流式连接
-        const es = new EventSource(`/api/search/ws?q=${encodeURIComponent(trimmed)}`);
+        const es = new EventSource(
+          `/api/search/ws?q=${encodeURIComponent(trimmed)}`
+        );
         eventSourceRef.current = es;
 
         es.onmessage = (event) => {
@@ -459,21 +511,53 @@ function SearchPageClient() {
                 setCompletedSources(0);
                 break;
               case 'source_result': {
-                setCompletedSources((prev) => prev + 1);
-                if (Array.isArray(payload.results) && payload.results.length > 0) {
+                setCompletedSources((prev: number) => prev + 1);
+                if (
+                  Array.isArray(payload.results) &&
+                  payload.results.length > 0
+                ) {
                   // 缓冲新增结果，节流刷入，避免频繁重渲染导致闪烁
-                  const activeYearOrder = (viewMode === 'agg' ? (filterAgg.yearOrder) : (filterAll.yearOrder));
+                  const activeYearOrder =
+                    viewMode === 'agg'
+                      ? filterAgg.yearOrder
+                      : filterAll.yearOrder;
                   const incoming: SearchResult[] =
                     activeYearOrder === 'none'
                       ? sortBatchForNoOrder(payload.results as SearchResult[])
                       : (payload.results as SearchResult[]);
+
+                  // 移动端只在第一个有结果的数据源时设置来源，后续不再改变
+                  if (
+                    typeof window !== 'undefined' &&
+                    window.innerWidth < 768 &&
+                    searchResults.length === 0 &&
+                    pendingResultsRef.current.length === 0 &&
+                    incoming.length > 0 &&
+                    filterAll.source === 'all' // 只有当前还未设置特定来源时才设置
+                  ) {
+                    const firstSource = incoming[0].source;
+                    setFilterAll(
+                      (prev: {
+                        source: string;
+                        title: string;
+                        year: string;
+                        yearOrder: 'none' | 'asc' | 'desc';
+                      }) => ({
+                        ...prev,
+                        source: firstSource,
+                      })
+                    );
+                  }
+
                   pendingResultsRef.current.push(...incoming);
                   if (!flushTimerRef.current) {
                     flushTimerRef.current = window.setTimeout(() => {
                       const toAppend = pendingResultsRef.current;
                       pendingResultsRef.current = [];
                       startTransition(() => {
-                        setSearchResults((prev) => prev.concat(toAppend));
+                        setSearchResults((prev: SearchResult[]) =>
+                          prev.concat(toAppend)
+                        );
                       });
                       flushTimerRef.current = null;
                     }, 80);
@@ -482,7 +566,7 @@ function SearchPageClient() {
                 break;
               }
               case 'source_error':
-                setCompletedSources((prev) => prev + 1);
+                setCompletedSources((prev: number) => prev + 1);
                 break;
               case 'complete':
                 setCompletedSources(payload.completedSources || totalSources);
@@ -499,13 +583,15 @@ function SearchPageClient() {
                   });
                 }
                 setIsLoading(false);
-                try { es.close(); } catch { }
+                try {
+                  es.close();
+                } catch {}
                 if (eventSourceRef.current === es) {
                   eventSourceRef.current = null;
                 }
                 break;
             }
-          } catch { }
+          } catch {}
         };
 
         es.onerror = () => {
@@ -522,7 +608,9 @@ function SearchPageClient() {
               setSearchResults((prev) => prev.concat(toAppend));
             });
           }
-          try { es.close(); } catch { }
+          try {
+            es.close();
+          } catch {}
           if (eventSourceRef.current === es) {
             eventSourceRef.current = null;
           }
@@ -530,16 +618,37 @@ function SearchPageClient() {
       } else {
         // 传统搜索：使用普通接口
         fetch(`/api/search?q=${encodeURIComponent(trimmed)}`)
-          .then(response => response.json())
-          .then(data => {
+          .then((response) => response.json())
+          .then((data) => {
             if (currentQueryRef.current !== trimmed) return;
 
             if (data.results && Array.isArray(data.results)) {
-              const activeYearOrder = (viewMode === 'agg' ? (filterAgg.yearOrder) : (filterAll.yearOrder));
+              const activeYearOrder =
+                viewMode === 'agg' ? filterAgg.yearOrder : filterAll.yearOrder;
               const results: SearchResult[] =
                 activeYearOrder === 'none'
                   ? sortBatchForNoOrder(data.results as SearchResult[])
                   : (data.results as SearchResult[]);
+
+              // 如果是移动端且有搜索结果，自动设置第一个来源
+              if (
+                typeof window !== 'undefined' &&
+                window.innerWidth < 768 &&
+                results.length > 0
+              ) {
+                const firstSource = results[0].source;
+                setFilterAll(
+                  (prev: {
+                    source: string;
+                    title: string;
+                    year: string;
+                    yearOrder: 'none' | 'asc' | 'desc';
+                  }) => ({
+                    ...prev,
+                    source: firstSource,
+                  })
+                );
+              }
 
               setSearchResults(results);
               setTotalSources(1);
@@ -565,7 +674,9 @@ function SearchPageClient() {
   useEffect(() => {
     return () => {
       if (eventSourceRef.current) {
-        try { eventSourceRef.current.close(); } catch { }
+        try {
+          eventSourceRef.current.close();
+        } catch {}
         eventSourceRef.current = null;
       }
       if (flushTimerRef.current) {
@@ -652,7 +763,7 @@ function SearchPageClient() {
                 onChange={handleInputChange}
                 onFocus={handleInputFocus}
                 placeholder='搜索电影、电视剧...'
-                autoComplete="off"
+                autoComplete='off'
                 className='w-full h-12 rounded-lg bg-gray-50/80 py-3 pl-10 pr-12 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400 focus:bg-white border border-gray-200/50 shadow-sm dark:bg-gray-800 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:bg-gray-700 dark:border-gray-700'
               />
 
@@ -735,13 +846,17 @@ function SearchPageClient() {
                 </div>
                 {/* 聚合开关 */}
                 <label className='flex items-center gap-2 cursor-pointer select-none shrink-0'>
-                  <span className='text-xs sm:text-sm text-gray-700 dark:text-gray-300'>聚合</span>
+                  <span className='text-xs sm:text-sm text-gray-700 dark:text-gray-300'>
+                    聚合
+                  </span>
                   <div className='relative'>
                     <input
                       type='checkbox'
                       className='sr-only peer'
                       checked={viewMode === 'agg'}
-                      onChange={() => setViewMode(viewMode === 'agg' ? 'all' : 'agg')}
+                      onChange={() =>
+                        setViewMode(viewMode === 'agg' ? 'all' : 'agg')
+                      }
                     />
                     <div className='w-9 h-5 bg-gray-300 rounded-full peer-checked:bg-green-500 transition-colors dark:bg-gray-600'></div>
                     <div className='absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4'></div>
@@ -765,63 +880,68 @@ function SearchPageClient() {
                 >
                   {viewMode === 'agg'
                     ? filteredAggResults.map(([mapKey, group]) => {
-                      const title = group[0]?.title || '';
-                      const poster = group[0]?.poster || '';
-                      const year = group[0]?.year || 'unknown';
-                      const { episodes, source_names, douban_id } = computeGroupStats(group);
-                      const type = episodes === 1 ? 'movie' : 'tv';
+                        const title = group[0]?.title || '';
+                        const poster = group[0]?.poster || '';
+                        const year = group[0]?.year || 'unknown';
+                        const { episodes, source_names, douban_id } =
+                          computeGroupStats(group);
+                        const type = episodes === 1 ? 'movie' : 'tv';
 
-                      // 如果该聚合第一次出现，写入初始统计
-                      if (!groupStatsRef.current.has(mapKey)) {
-                        groupStatsRef.current.set(mapKey, { episodes, source_names, douban_id });
-                      }
+                        // 如果该聚合第一次出现，写入初始统计
+                        if (!groupStatsRef.current.has(mapKey)) {
+                          groupStatsRef.current.set(mapKey, {
+                            episodes,
+                            source_names,
+                            douban_id,
+                          });
+                        }
 
-                      return (
-                        <div key={`agg-${mapKey}`} className='w-full'>
+                        return (
+                          <div key={`agg-${mapKey}`} className='w-full'>
+                            <VideoCard
+                              ref={getGroupRef(mapKey)}
+                              from='search'
+                              isAggregate={true}
+                              title={title}
+                              poster={poster}
+                              year={year}
+                              episodes={episodes}
+                              source_names={source_names}
+                              douban_id={douban_id}
+                              query={
+                                searchQuery.trim() !== title
+                                  ? searchQuery.trim()
+                                  : ''
+                              }
+                              type={type}
+                            />
+                          </div>
+                        );
+                      })
+                    : filteredAllResults.map((item) => (
+                        <div
+                          key={`all-${item.source}-${item.id}`}
+                          className='w-full'
+                        >
                           <VideoCard
-                            ref={getGroupRef(mapKey)}
-                            from='search'
-                            isAggregate={true}
-                            title={title}
-                            poster={poster}
-                            year={year}
-                            episodes={episodes}
-                            source_names={source_names}
-                            douban_id={douban_id}
+                            id={item.id}
+                            title={item.title}
+                            poster={item.poster}
+                            episodes={item.episodes.length}
+                            source={item.source}
+                            source_name={item.source_name}
+                            douban_id={item.douban_id}
                             query={
-                              searchQuery.trim() !== title
+                              searchQuery.trim() !== item.title
                                 ? searchQuery.trim()
                                 : ''
                             }
-                            type={type}
+                            year={item.year}
+                            from='search'
+                            type={item.episodes.length > 1 ? 'tv' : 'movie'}
                           />
                         </div>
-                      );
-                    })
-                    : filteredAllResults.map((item) => (
-                      <div
-                        key={`all-${item.source}-${item.id}`}
-                        className='w-full'
-                      >
-                        <VideoCard
-                          id={item.id}
-                          title={item.title}
-                          poster={item.poster}
-                          episodes={item.episodes.length}
-                          source={item.source}
-                          source_name={item.source_name}
-                          douban_id={item.douban_id}
-                          query={
-                            searchQuery.trim() !== item.title
-                              ? searchQuery.trim()
-                              : ''
-                          }
-                          year={item.year}
-                          from='search'
-                          type={item.episodes.length > 1 ? 'tv' : 'movie'}
-                        />
-                      </div>
-                    ))}
+                      ))}
                 </div>
               )}
             </section>
@@ -878,10 +998,11 @@ function SearchPageClient() {
       {/* 返回顶部悬浮按钮 */}
       <button
         onClick={scrollToTop}
-        className={`fixed bottom-20 md:bottom-6 right-6 z-[500] w-12 h-12 bg-green-500/90 hover:bg-green-500 text-white rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 ease-in-out flex items-center justify-center group ${showBackToTop
-          ? 'opacity-100 translate-y-0 pointer-events-auto'
-          : 'opacity-0 translate-y-4 pointer-events-none'
-          }`}
+        className={`fixed bottom-20 md:bottom-6 right-6 z-[500] w-12 h-12 bg-green-500/90 hover:bg-green-500 text-white rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 ease-in-out flex items-center justify-center group ${
+          showBackToTop
+            ? 'opacity-100 translate-y-0 pointer-events-auto'
+            : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}
         aria-label='返回顶部'
       >
         <ChevronUp className='w-6 h-6 transition-transform group-hover:scale-110' />
