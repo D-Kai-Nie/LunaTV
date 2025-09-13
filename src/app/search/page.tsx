@@ -526,35 +526,14 @@ function SearchPageClient() {
                       ? sortBatchForNoOrder(payload.results as SearchResult[])
                       : (payload.results as SearchResult[]);
 
-                  // 移动端自动选择第一个来源
+                  // 移动端只在第一个有结果的数据源时设置来源，后续不再改变
                   if (
                     typeof window !== 'undefined' &&
                     window.innerWidth < 768 &&
                     searchResults.length === 0 &&
                     pendingResultsRef.current.length === 0 &&
-                    incoming.length > 0
-                  ) {
-                    const firstSource = incoming[0].source;
-                    setFilterAll(
-                      (prev: {
-                        source: string;
-                        title: string;
-                        year: string;
-                        yearOrder: 'none' | 'asc' | 'desc';
-                      }) => ({
-                        ...prev,
-                        source: firstSource,
-                      })
-                    );
-                  }
-
-                  // 如果是移动端且这是第一批结果，自动设置第一个来源
-                  if (
-                    typeof window !== 'undefined' &&
-                    window.innerWidth < 768 &&
-                    searchResults.length === 0 &&
-                    pendingResultsRef.current.length === 0 &&
-                    incoming.length > 0
+                    incoming.length > 0 &&
+                    filterAll.source === 'all' // 只有当前还未设置特定来源时才设置
                   ) {
                     const firstSource = incoming[0].source;
                     setFilterAll(
